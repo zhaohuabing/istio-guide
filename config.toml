@@ -1,4 +1,5 @@
-baseURL = "/"
+#baseURL = "/"
+baseURL="https://www.zhaohuabing.com/istio-guide/"
 title = "Istio 运维实战"
 
 # Language settings
@@ -66,8 +67,8 @@ id = "UA-00000000-0"
 # Language configuration
 
 [languages.zh]
-title = "Istio 运维实战"
-description = "Istio 运维实战"
+title = "Envoy 学习笔记"
+description = "Envoy 学习笔记"
 languageName ="中文"
 contentDir = "content/zh"
 time_format_default = "2006.02.01"
@@ -90,8 +91,8 @@ time_format_blog = "2006.02.01"
 section = ["HTML", "print", "RSS"]
 
 [params]
-copyright = "Aeraki Mesh"
-privacy_policy = "https://www.aeraki.net/"
+copyright = "Huabing Blog"
+privacy_policy = "https://www.zhaohuabing.com/"
 
 # First one is picked as the Twitter card image if not set on page.
 # images = ["images/project-illustration.png"]
@@ -112,12 +113,12 @@ version = "0.0"
 
 # A link to latest version of the docs. Used in the "version-banner" partial to
 # point people to the main doc site.
-url_latest_version = "https://github.com/aeraki-mesh/istio-operation-bible"
+url_latest_version = "https://zhaohuabing.com/istio-guide"
 
 # Repository configuration (URLs for in-page links to opening issues and suggesting changes)
-github_repo = "https://github.com/aeraki-mesh/istio-operation-bible"
+github_repo = "https://github.com/zhaohuabing/istio-guide"
 # An optional link to a related project repo. For example, the sibling repository where your product code lives.
-#github_project_repo = "https://github.com/aeraki-mesh/aeraki"
+#github_project_repo = "https://github.com/google/docsy"
 
 # Specify a value here if your content directory is not in your repo's root directory
 # github_subdir = ""
@@ -173,10 +174,21 @@ no = 'Sorry to hear that. Please <a href="https://github.com/USERNAME/REPOSITORY
 enable = false
 
 [params.links]
+# End user relevant links. These will show up on left side of footer and in the community page if you have one.
+[[params.links.user]]
+  name = "Email"
+  url = "mailto:zhaohuabing@zhaohuabing.com"
+  icon = "fa fa-envelope"
+  desc = "Discussion and help from your fellow users"
+[[params.links.user]]
+  name ="Twitter"
+  url = "https://twitter.com/zhaohuabing"
+  icon = "fab fa-twitter"
+  desc = "Follow us on Twitter to get the latest news!"
 # Developer relevant links. These will show up on right side of footer and in the community page if you have one.
 [[params.links.developer]]
   name = "GitHub"
-  url = "https://github.com/aeraki-mesh/istio-operation-bible"
+  url = "https://github.com/zhaohuabing/istio-guide"
   icon = "fab fa-github"
   desc = "Development takes place here!"
 [params.plantuml]
