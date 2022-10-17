@@ -1,7 +1,7 @@
 {
   "name": "learning-envoy",
   "version": "0.0.1",
-  "description": "Envoy 学习笔记.",
+  "description": "Istio 运维实战.",
   "main": "none.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

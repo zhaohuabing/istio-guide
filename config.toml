@@ -67,8 +67,8 @@ id = "UA-00000000-0"
 # Language configuration
 
 [languages.zh]
-title = "Envoy 学习笔记"
-description = "Envoy 学习笔记"
+title = "Istio 运维实战"
+description = "Istio 运维实战"
 languageName ="中文"
 contentDir = "content/zh"
 time_format_default = "2006.02.01"
