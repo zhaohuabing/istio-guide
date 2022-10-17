@@ -1,10 +1,9 @@
-
 ---
-title: "应用程序启动失败/启动时无法访问网络"
-linkTitle: "应用程序启动失败/启动时无法访问网络"
+title: "应用程序启动失败"
+linkTitle: "应用程序启动失败"
 weight: 1
 date: 2022-07-06
-description: 
+description: 安装了 sidecar 的应用启动失败。 
 ---
 
 ## 故障现象
