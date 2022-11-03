@@ -213,3 +213,15 @@ svg_image_url = "https://www.plantuml.com/plantuml/svg/"
   [[module.imports]]
     path = "github.com/google/docsy/dependencies"
     disable = false    
+
+[params.giscus]
+    data_repo = "zhaohuabing/zhaohuabing.github.io"
+    data_repo_id = "MDEwOlJlcG9zaXRvcnkxMzc3MjcyMjM="
+    data_category = "Announcements"
+    data_category_id = "DIC_kwDOCDWM984CAWAt"
+    data_mapping = "pathname"
+    data_reactions_enabled = "1"
+    data_emit_metadata = "0"
+    data_theme = "light"
+    data_lang = "en"
+    crossorigin = "anonymous"
