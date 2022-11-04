@@ -215,10 +215,10 @@ svg_image_url = "https://www.plantuml.com/plantuml/svg/"
     disable = false    
 
 [params.giscus]
-    data_repo = "zhaohuabing/zhaohuabing.github.io"
-    data_repo_id = "MDEwOlJlcG9zaXRvcnkxMzc3MjcyMjM="
+    data_repo = "zhaohuabing/istio-guide"
+    data_repo_id = "R_kgDOIPGBXA"
     data_category = "Announcements"
-    data_category_id = "DIC_kwDOCDWM984CAWAt"
+    data_category_id = "DIC_kwDOIPGBXM4CSWjp"
     data_mapping = "pathname"
     data_reactions_enabled = "1"
     data_emit_metadata = "0"
