@@ -1,6 +1,7 @@
 #baseURL = "/"
 baseURL="https://www.zhaohuabing.com/istio-guide/"
 title = "Istio 运维实战"
+googleAnalytics = "G-Q13FPWS6LW"
 
 # Language settings
 contentDir = "content"
