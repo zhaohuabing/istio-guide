@@ -16,21 +16,21 @@ description: Upstream 断开链路导致 503 UC。
 
 ## 故障原因
 
-从访问日志中 `503 UC upstream_reset_before_response_started{connection_termination}` 的输出，我们可以初步推断出 503 的原因是链接被 upstream 侧中断了。
+从访问日志中 `503 UC upstream_reset_before_response_started{connection_termination}` 的输出，我们可以初步推断出 503 的原因是连接被 upstream 侧中断了。
 
-通过 Envoy 管理端口打开 debug 日志，可以看到在出现 503 UC 时，envoy 从 connection pool 中拿出了一个 upstream 的链接，但拿出该链接后，envoy 打印了一个 "remote close" 日志，说明该链接被对端关闭了。
+通过 Envoy 管理端口打开 debug 日志，可以看到在出现 503 UC 时，envoy 从 connection pool 中拿出了一个 upstream 的连接，但拿出该连接后，envoy 打印了一个 "remote close" 日志，说明该连接被对端关闭了。
 
 ![](debug.png)
 
-Envoy 的 HTTP Router 会在第一次和 Upstream 建立 TCP 链接并使用后将链接释放到一个链接池中，而不是直接关闭该链接。这样下次 downstream 请求相同的 Upstream host 时可以重用该链接，可以避免频繁创建/关闭链接带来的开销。 
+Envoy 的 HTTP Router 会在第一次和 Upstream 建立 TCP 连接并使用后将连接释放到一个连接池中，而不是直接关闭该连接。这样下次 downstream 请求相同的 Upstream host 时可以重用该连接，可以避免频繁创建/关闭连接带来的开销。 
 
-但在某些情况下，服务器端主动关闭了链接，而 Envoy 侧尚未感知到该链接的状态变化，就会导致 Envoy 将该链接从连接池中取出以用于发送来自 downstream 的请求。此时就会出现 `503 UC upstream_reset_before_response_started{connection_termination}` 异常。
+但在某些情况下，服务器端主动关闭了连接，而 Envoy 侧尚未感知到该连接的状态变化，就会导致 Envoy 将该连接从连接池中取出以用于发送来自 downstream 的请求。此时就会出现 `503 UC upstream_reset_before_response_started{connection_termination}` 异常。
 
 ## 解决方案
 
 ### 方案一
 
-增大服务器端 TCP socket timeout 的时间间隔。例如 [nodejs 的缺省超时时间较短，只有 5 seconds](https://nodejs.org/api/http.html#serverkeepalivetimeout)，将 nodejs 应用放到 Istio 中时，出现 503 UC 的几率比较大。
+增大服务器端 TCP socket timeout 的时间间隔可以减少该问题出现的几率。该问题在 nodejs 应用中出现得较多，原因是 [nodejs 的缺省超时时间较短，只有 5 秒钟](https://nodejs.org/api/http.html#serverkeepalivetimeout)，因此在 Envoy 连接池中取出的连接有较大几率刚好被对端的 nodejs 关闭了。
 
 > Timeout in milliseconds. Default: 5000 (5 seconds).
 The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has finished writing the last response, before a socket will be destroyed. If the server receives new data before the keep-alive timeout has fired, it will reset the regular inactivity timeout, i.e., server.timeout.
@@ -69,7 +69,7 @@ s.ListenAndServe()
 通过方案一可以减少 503 UC 的频率，但理论上无论 keepalive timout 设置为多大，都有出现 503 UC的几率。并且我们需要将 timeout 设置为一个合理的值，而不是无限大。要彻底解决该问题，可以采用 Virtual Service 为出现该问题的服务设置重试策略，在重试策略的 retryOn 中增加 `reset` 条件。
 
 备注：
-Istio 缺省为服务设置了重试策略，但缺省的重试策略中并不会对链接重置这种情况进行重试。
+Istio 缺省为服务设置了重试策略，但缺省的重试策略中并不会对连接重置这种情况进行重试。
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
