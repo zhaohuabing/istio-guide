@@ -24,7 +24,9 @@ description: Upstream 断开链路导致 503 UC。
 
 Envoy 的 HTTP Router 会在第一次和 Upstream 建立 TCP 连接并使用后将连接释放到一个连接池中，而不是直接关闭该连接。这样下次 downstream 请求相同的 Upstream host 时可以重用该连接，可以避免频繁创建/关闭连接带来的开销。 
 
-但在某些情况下，服务器端主动关闭了连接，而 Envoy 侧尚未感知到该连接的状态变化，就会导致 Envoy 将该连接从连接池中取出以用于发送来自 downstream 的请求。此时就会出现 `503 UC upstream_reset_before_response_started{connection_termination}` 异常。
+当连接被 Envoy 放入连接池后，连接中不再转发来着 downstream 数据，即连接处于空闲状态。连接对端的应用程序会检查连接的空闲状态，并在空闲期间通过 [TCP keepalive packet](https://tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/#whatis) 来侦测对端状态。由于空闲的连接也会占用资源，因此应用并不会无限制地在一个空闲连接上进行等待。几乎所有语言/框架在创建 TCP 服务器时都会设置一个 keepalive timeout 选项，如果在 keepalive timeout 的时间内没有收到新的 TCP 数据包，应用就会关闭该连接。
+
+在应用端关闭连接后的极短时间内，Envoy 侧尚未感知到该连接的状态变化，如果此时 Envoy 收到了来着 downstream 的请求并将该连接从连接池中取出来使用，就会出现 `503 UC upstream_reset_before_response_started{connection_termination}` 异常。
 
 ## 解决方案
 
@@ -66,7 +68,7 @@ s.ListenAndServe()
 
 ### 方案二
 
-通过方案一可以减少 503 UC 出现的频率，但理论上无论 keepalive timout 设置为多大，都有出现 503 UC的几率。而且我们也需要将 timeout 设置为一个合理的值，而不是无限大。要彻底解决该问题，可以采用 Virtual Service 为出现该问题的服务设置重试策略，在重试策略的 retryOn 中增加 `reset` 条件。
+通过方案一可以减少 503 UC 出现的频率，但理论上无论 keepalive timeout 设置为多大，都有出现 503 UC的几率。而且我们也需要将 timeout 设置为一个合理的值，而不是无限大。要彻底解决该问题，可以采用 Virtual Service 为出现该问题的服务设置重试策略，在重试策略的 retryOn 中增加 `reset` 条件。
 
 备注：
 Istio 缺省为服务设置了重试策略，但缺省的重试策略中并不会对连接重置这种情况进行重试。
