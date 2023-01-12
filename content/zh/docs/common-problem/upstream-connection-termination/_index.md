@@ -24,11 +24,49 @@ description: Upstream 断开链路导致 503 UC。
 
 Envoy 的 HTTP Router 会在第一次和 Upstream 建立 TCP 链接并使用后将链接释放到一个链接池中，而不是直接关闭该链接。这样下次 downstream 请求相同的 Upstream host 时可以重用该链接，可以避免频繁创建/关闭链接带来的开销。 
 
-但是如果服务器端关闭了链接，而 Envoy 侧尚未感知到该链接的状态变化，就会导致 Envoy 将该链接从连接池中取出以用于发送来着 downstream 的请求。此时就会出现 `503 UC upstream_reset_before_response_started{connection_termination}` 异常。
+但在某些情况下，服务器端主动关闭了链接，而 Envoy 侧尚未感知到该链接的状态变化，就会导致 Envoy 将该链接从连接池中取出以用于发送来自 downstream 的请求。此时就会出现 `503 UC upstream_reset_before_response_started{connection_termination}` 异常。
 
 ## 解决方案
 
-采用 Virtual Service 为出现该问题的服务设置重试策略，在重试策略的 retryOn 中增加 `reset` 条件。
+### 方案一
+
+增大服务器端 TCP socket timeout 的时间间隔。例如 [nodejs 的缺省超时时间较短，只有 5 seconds](https://nodejs.org/api/http.html#serverkeepalivetimeout)，将 nodejs 应用放到 Istio 中时，出现 503 UC 的几率比较大。
+
+> Timeout in milliseconds. Default: 5000 (5 seconds).
+The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has finished writing the last response, before a socket will be destroyed. If the server receives new data before the keep-alive timeout has fired, it will reset the regular inactivity timeout, i.e., server.timeout.
+
+通过下面的方法可以在服务器端将 nodejs 的 keep alive tiemout 时间延长为 6 分钟。
+
+```node
+const server = app.listen(port, '0.0.0.0', () => {
+  logger.info(`App is now running on http://localhost:${port}`)
+})
+server.keepAliveTimeout = 1000 * (60 * 6) // 6 minutes
+``` 
+
+其他语言的设置方法：
+
+Python
+```python
+global_config = {
+  'server.socket_timeout': 6 * 60,
+}
+cherrypy.config.update(global_config)
+```
+
+Go
+```go
+var s = http.Server{
+    Addr:        ":8080",
+    Handler:     http.HandlerFunc(Index),
+    IdleTimeout: 6 * time.Second,
+}
+s.ListenAndServe()
+```
+
+### 方案二
+
+通过方案一可以减少 503 UC 的频率，但理论上无论 keepalive timout 设置为多大，都有出现 503 UC的几率。并且我们需要将 timeout 设置为一个合理的值，而不是无限大。要彻底解决该问题，可以采用 Virtual Service 为出现该问题的服务设置重试策略，在重试策略的 retryOn 中增加 `reset` 条件。
 
 备注：
 Istio 缺省为服务设置了重试策略，但缺省的重试策略中并不会对链接重置这种情况进行重试。
@@ -50,4 +88,9 @@ spec:
       attempts: 3
       retryOn: reset,connect-failure,refused-stream,unavailable,cancelled,retriable-status-codes
 ```
+
+## 参考文档
+
+* [Istio: 503's with UC's and TCP Fun Times](https://karlstoney.com/2019/05/31/istio-503s-ucs-and-tcp-fun-times/)
+* [Envoy intermittently responds with 503 UC (upstream_reset_before_response_started{connection_termination})](https://github.com/envoyproxy/envoy/issues/14981)
 
