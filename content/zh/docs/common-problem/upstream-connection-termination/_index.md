@@ -1,6 +1,6 @@
 ---
-title: "503 UC upstream_reset_before_response_started{connection_termination}"
-linkTitle: "503 UC upstream_reset_before_response_started{connection_termination}"
+title: "503 UC upstream_reset_before_response_started"
+linkTitle: "503 UC upstream_reset_before_response_started"
 weight: 13
 date: 2023-01-12
 description: Upstream 断开链路导致 503 UC。 
