@@ -45,19 +45,19 @@ kubectl cp -n "$NS" "$POD":/usr/local/bin/envoy /tmp/envoy/lib/envoy -c istio-pr
 Install pprof, then run:
 
 ```bash
-PPROF_BINARY_PATH=/tmp/envoy/lib/ pprof -pdf /tmp/envoy/lib/envoy /tmp/envoy/envoy.prof
+PPROF_BINARY_PATH=/tmp/envoy/lib/ pprof -pdf /tmp/envoy/lib/envoy /tmp/envoy/envoy.prof.0001.heap
 ```
 
 Or, interactively
 
 ```bash
-PPROF_BINARY_PATH=/tmp/envoy/lib/ pprof /tmp/envoy/lib/envoy /tmp/envoy/envoy.prof
+PPROF_BINARY_PATH=/tmp/envoy/lib/ pprof /tmp/envoy/lib/envoy /tmp/envoy/envoy.prof.0001.heap
 ```
 
 Or, through the web UI
 
 ```bash
-PPROF_BINARY_PATH=/tmp/envoy/lib/ pprof -http=localhost:8000 /tmp/envoy/lib/envoy /tmp/envoy/envoy.prof
+PPROF_BINARY_PATH=/tmp/envoy/lib/ pprof -http=localhost:8000 /tmp/envoy/lib/envoy /tmp/envoy/envoy.prof.0001.heap
 ```
 
 # 采用 Envoy admin 查看内存使用情况
