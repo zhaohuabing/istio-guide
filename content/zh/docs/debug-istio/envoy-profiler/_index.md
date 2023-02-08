@@ -30,7 +30,7 @@ On Istio 1.6+
 ```bash
 export POD=pod-name
 export NS=istio-system
-export PROFILER="cpu" # Can also be "heap", for a heap profile
+export PROFILER="heap" # Can also be "cpu", for a cpu profile
 kubectl exec -n "$NS" "$POD" -c istio-proxy -- curl -X POST -s "http://localhost:15000/${PROFILER}profiler?enable=y"
 sleep 15
 kubectl exec -n "$NS" "$POD" -c istio-proxy -- curl -X POST -s "http://localhost:15000/${PROFILER}profiler?enable=n"
@@ -38,6 +38,12 @@ rm -rf /tmp/envoy
 kubectl cp -n "$NS" "$POD":/var/lib/istio/data /tmp/envoy -c istio-proxy
 kubectl cp -n "$NS" "$POD":/lib/x86_64-linux-gnu /tmp/envoy/lib -c istio-proxy
 kubectl cp -n "$NS" "$POD":/usr/local/bin/envoy /tmp/envoy/lib/envoy -c istio-proxy
+```
+
+备注：有时候 docker cp envoy 会出错，可以采用 cat 命令
+
+```bash
+kubectl  -n "$NS" exec "$POD" -c istio-proxy -- cat /usr/local/bin/envoy > /tmp/envoy/lib/envoy
 ```
 
 ## Visualize profile pprof installation
