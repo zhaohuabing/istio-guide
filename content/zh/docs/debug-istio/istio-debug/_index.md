@@ -33,3 +33,15 @@ go tool pprof -http=:8080 localhost:15014/debug/pprof/heap
 
 ![istio-heap](image/istio-heap.png)
 
+## 查看 istiod 的 metrics
+
+将 istio 调试端口 port forward 到 localhost 后，可以通过 ```http://127.0.0.1:15014/metrics ```查看 istiod 自身的 metrics 数据，以了解 istiod 的运行情况。
+
+其中比较重要的指标有：
+
+* pilot_xds: 连接到 pilot 的 xDS 客户端数量。
+* pilot_xds_pushes: xds push 消息的数量。
+* pilot_xds_push_time: xds push 的耗时分布情况。
+
+其他指标的含义参见： https://istio.io/latest/docs/reference/commands/pilot-discovery/#metrics
+
